@@ -7,26 +7,18 @@ try{
 }
 
 const userScheme = new mongoose.Schema({
-    firsName :  {
+    username :  {
         type : String,
         required : true,
         maxlength : 50,
         trim : true,
     },
-    lastName :  {
+    password :  {
         type : String,
         required : true,
-        maxlength : 50,
-        trim : true,
-    },
-    email : {
-        type : String,
-        required : true,
-        lowercase: true,
-        unique : true,
-        trim : true,
         maxlength : 100,
-    match: /^[^\s@]+@[^\s@]+\.[^\s@]+$/,
+        minlength : 8,
+        trim : true,
     }
 })
 
