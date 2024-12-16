@@ -1,7 +1,7 @@
 import express, { Request, Response, Router } from "express";
 export const userRouter = Router();
 import z from "zod";
-import { User } from "../db";
+import { Content, User } from "../db";
 import bcrypt from "bcrypt"
 import { JWT_SECRET, salt } from "../config";
 import jwt from "jsonwebtoken";
@@ -46,11 +46,44 @@ userRouter.post("/signup",
             message : "User created Successfully",
             token
         })
-
 }) 
+userRouter.post("/signin", async (req:Request,res: Response) : Promise<any> => {
+    const body : UserBody  = req.body;
+    const { success } =  UserBodySchema.safeParse(body);
+    if(!success){
+        return res.status(411).json({
+            message : "Enter valid credentials"
+        })
+    } 
+    const user = await User.findOne({
+        username : body.username
+    })
+    if(!user){
+        return res.json({
+            message : "User dose not exist"
+        })
+    }
+    try{
+        const isPassCorrect = bcrypt.compare(body.password, user.password)
+        if(!isPassCorrect){
+                return res.status(403).json({
+                    message : 'Passwords do not match! Authentication failed.'
+                })
+            }
+            const token = jwt.sign({ id : user._id }, JWT_SECRET);
+            return res.status(200).json({
+                message : "User logged in successfully",
+                token
+            })
+    }catch(err){
+        console.error('Error during authentication:', err);
+        return res.status(500).json({
+            message: 'Internal server error while authenticating.',
+        })
+    }
+})
 
-
-
-
-
-
+userRouter.get("/content", async (req:Request, res: Response) : Promise<any> => {
+    const contents = await Content.find({});
+    return res.status(200).json({contents})
+}) 
