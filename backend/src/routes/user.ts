@@ -12,6 +12,16 @@ const UserBodySchema = z.object({
 type UserBody = z.infer<typeof UserBodySchema >
 
 
+const contentBodySchema = z.object({
+    type  : z.enum(["document", "tweet", "youtube", "link"]),
+    link : z.string(),
+    title : z.string(),
+    tag : z.array(z.string()),
+
+})
+
+type ContentBody = z.infer<typeof contentBodySchema>
+
 async function hashPassword(normalPassword : string): Promise<string> {
     return bcrypt.hash(normalPassword, salt)
 }
@@ -83,7 +93,24 @@ userRouter.post("/signin", async (req:Request,res: Response) : Promise<any> => {
     }
 })
 
+userRouter.post("/content", async (req:Request, res: Response) : Promise<any> => {
+    const content : ContentBody = req.body;
+    const { success } = contentBodySchema.safeParse(content);
+    if(!success){
+        return res.json({
+            message : "enter valid content details"
+        })
+    }
+    // const response = await Content.create(content)
+    return res.json({
+        message : 'content stored successfully'
+    })
+})
+
 userRouter.get("/content", async (req:Request, res: Response) : Promise<any> => {
-    const contents = await Content.find({});
+    const contents = await Content.find({
+        //@ts-ignore
+        userId : req.userId
+    });
     return res.status(200).json({contents})
 }) 
