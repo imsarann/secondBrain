@@ -5,6 +5,7 @@ import { Content, User } from "../db";
 import bcrypt from "bcrypt"
 import { JWT_SECRET, salt } from "../config";
 import jwt from "jsonwebtoken";
+import Middleware from "../Middleware";
 const UserBodySchema = z.object({
     username : z.string().min(3).max(100),
     password : z.string().min(8).max(100),
@@ -93,7 +94,7 @@ userRouter.post("/signin", async (req:Request,res: Response) : Promise<any> => {
     }
 })
 
-userRouter.post("/content", async (req:Request, res: Response) : Promise<any> => {
+userRouter.post("/content",Middleware, async (req:Request, res: Response) : Promise<any> => {
     const content : ContentBody = req.body;
     const { success } = contentBodySchema.safeParse(content);
     if(!success){
@@ -101,16 +102,47 @@ userRouter.post("/content", async (req:Request, res: Response) : Promise<any> =>
             message : "enter valid content details"
         })
     }
-    // const response = await Content.create(content)
+    const response = await Content.create({
+        type : content.type,
+        link : content.link,
+        title : content.title,
+        tags : content.title,
+        //@ts-ignore
+        userId : req.userId
+    })
+    console.log(response)
     return res.json({
         message : 'content stored successfully'
     })
 })
 
-userRouter.get("/content", async (req:Request, res: Response) : Promise<any> => {
+userRouter.get("/content",Middleware, async (req:Request, res: Response) : Promise<any> => {
     const contents = await Content.find({
         //@ts-ignore
         userId : req.userId
-    });
+    }).populate("UserId", "username")
     return res.status(200).json({contents})
 }) 
+
+userRouter.delete("/content",Middleware, async (req:Request, res:Response) : Promise<any> => {
+    const contentId = req.body.contentId;
+    const doesOwn = await Content.findOne({
+        _id : contentId
+    })
+    //@ts-ignore
+    if( doesOwn.userId !== req.userId){
+        return res.status(403).json({
+            message : `Trying to delete a doc you don’t own`
+        })
+    } 
+    const content = await Content.deleteOne({
+        contentId,
+        //@ts-ignore
+        userId : req.userId 
+    }) 
+    return res.status(200).json({
+        message : `content removed successfully`
+    })
+})
+
+
