@@ -23,13 +23,7 @@ const userScheme = new mongoose.Schema({
     }
 })
 
-const tagsSchema = new mongoose.Schema({
-    title : {
-        type : String,
-        required : true,
-        unique : true
-    }
-})
+
 
 const linkSchema = new mongoose.Schema({
     hash : {
@@ -69,7 +63,13 @@ const contentSchema = new mongoose.Schema({
         ref : "User"
     }
 })
-
+const tagsSchema = new mongoose.Schema({
+    title : {
+        type : String,
+        required : true,
+        unique : true
+    }
+})
 export const Link = mongoose.model("Link", linkSchema)
 export const Tag = mongoose.model("Tag", tagsSchema)
 export const Content = mongoose.model("Content", contentSchema)

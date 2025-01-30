@@ -17,7 +17,7 @@ const contentBodySchema = z.object({
     type  : z.enum(["document", "tweet", "youtube", "link"]),
     link : z.string(),
     title : z.string(),
-    tag : z.array(z.string()),
+    tags : z.array(z.string()),
 
 })
 
@@ -96,7 +96,9 @@ userRouter.post("/signin", async (req:Request,res: Response) : Promise<any> => {
 
 userRouter.post("/content",Middleware, async (req:Request, res: Response) : Promise<any> => {
     const content : ContentBody = req.body;
+    console.log("hellooooo content ", content)
     const { success } = contentBodySchema.safeParse(content);
+    console.log("hellpaoskfgn")
     if(!success){
         return res.json({
             message : "enter valid content details"
@@ -127,7 +129,7 @@ userRouter.get("/content",Middleware, async (req:Request, res: Response) : Promi
 userRouter.delete("/content",Middleware, async (req:Request, res:Response) : Promise<any> => {
     const contentId = req.body.contentId;
     const doesOwn = await Content.findOne({
-        _id : contentId
+        _id : contentId 
     })
     //@ts-ignore
     if( doesOwn.userId !== req.userId){
