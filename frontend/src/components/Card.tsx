@@ -13,7 +13,6 @@ export default function Card({title, link, type} : CardProps) {
         <div className="flex justify-between items-center text-md">
           <div className="flex items-center text-md">
             <div className="text-gray-500 pr-2">
-              <ShareIcon />
             </div>
             {title}
           </div>
@@ -22,9 +21,6 @@ export default function Card({title, link, type} : CardProps) {
               <a href={link} target="_blank">
               <ShareIcon />
               </a>
-            </div>
-            <div className="text-gray-500">
-              <ShareIcon />
             </div>
           </div>
         </div>
